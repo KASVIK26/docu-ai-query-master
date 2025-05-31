@@ -1,73 +1,66 @@
-# Welcome to your Lovable project
+# Docu AI Query Master
 
-## Project info
+**Docu AI Query Master** is a document-based question-answering system that leverages Retrieval-Augmented Generation (RAG) to provide intelligent responses from various document sources. Built with state-of-the-art NLP techniques and modern AI technologies, it offers a streamlined interface for extracting and querying information from multiple document formats.
 
-**URL**: https://lovable.dev/projects/5d889767-77b6-4726-bbbc-1c9b137394f7
+## Features
 
-## How can I edit this code?
+- **Document Processing**: Upload and process documents in various formats.
+- **Semantic Chunking**: Intelligent document chunking for optimal processing.
+- **Vector Embedding Generation**: Utilizes advanced embedding models for text representation.
+- **Hybrid Retrieval System**: Combines traditional and vector-based search for efficient information retrieval.
+- **Context-Aware Q&A**: Leverages large language models to generate accurate responses based on document content.
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: HTML, CSS, JavaScript, Tailwind CSS
+- **Backend**: Node.js, Supabase
+- **Embedding & LLM**: Normic for embeddings, Mistral for language model tasks
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5d889767-77b6-4726-bbbc-1c9b137394f7) and start prompting.
+## Project Structure
+docu-ai-query-master/
+├── public/ # Static assets
+├── src/ # Source code
+├── supabase/ # Supabase configuration
+├── index.html # Entry point
+├── package.json # Project metadata and dependencies
+├── tailwind.config.ts # Tailwind CSS configuration
+├── tsconfig.json # TypeScript configuration
+└── vite.config.ts # Vite build tool configuration
+## Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Node.js**: Ensure you have Node.js installed.
+- **Supabase Account**: Set up a Supabase project for backend services.
+- **API Keys**: Obtain necessary API keys for Normic and Mistral.
 
-**Use your preferred IDE**
+## Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone the Repository**:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+   ```bash
+   git clone https://github.com/KASVIK26/docu-ai-query-master.git
+   cd docu-ai-query-master
+2. Install Dependencies:
+   
+   npm install
+   
+3. Configure Environment Variables:
+   OPENAI_API_KEY = " " in Supabase Secrets.
 
-Follow these steps:
+4. Run the Application:
+   npm run dev
+   
+##Usage
+Upload Documents: Use the interface to upload documents you wish to query.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Ask Questions: Enter your questions related to the uploaded documents.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+View Responses: The system will process your query and display relevant answers based on the document content.
+   
+ 
 
-# Step 3: Install the necessary dependencies.
-npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/5d889767-77b6-4726-bbbc-1c9b137394f7) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+![Screenshot 2025-06-01 001929](https://github.com/user-attachments/assets/c5d53017-6afe-4e73-bb63-2eff82fff4d2)
+![Screenshot 2025-06-01 002010](https://github.com/user-attachments/assets/b5228399-b45a-47f4-9cd0-c4cd64e71ceb)
+![Screenshot 2025-06-01 002019](https://github.com/user-attachments/assets/d4c9a5fc-73c0-42fc-9a4d-6b78c225881e)
+![Screenshot 2025-06-01 002052](https://github.com/user-attachments/assets/9356429c-3a5d-49b4-8d61-b19ca78993b3)
+![supabase-schema-bbgcmiocpqwyhshdbvzt](https://github.com/user-attachments/assets/128d283a-3aff-430f-a8f0-aa536c0bbba6)
