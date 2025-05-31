@@ -3,29 +3,24 @@ import React, { useState } from 'react';
 import { MessageSquare } from 'lucide-react';
 import ChatInterface from '../components/ChatInterface';
 import DocumentCard from '../components/DocumentCard';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const QA = () => {
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
-  const [documents] = useState([
-    {
-      id: '1',
-      title: 'Research Paper on AI.pdf',
-      size: '2.4 MB',
-      pages: 15,
-      uploadDate: '2024-01-15',
-      type: 'pdf' as const,
+  
+  const { data: documents } = useQuery({
+    queryKey: ['documents'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('get-documents');
+      if (error) throw error;
+      return data.documents || [];
     },
-    {
-      id: '2',
-      title: 'Meeting Notes.txt',
-      size: '45 KB',
-      pages: 3,
-      uploadDate: '2024-01-14',
-      type: 'txt' as const,
-    },
-  ]);
+  });
 
-  const selectedDoc = documents.find(doc => doc.id === selectedDocument);
+  // Filter only completed documents
+  const completedDocuments = documents?.filter((doc: any) => doc.processing_status === 'completed') || [];
+  const selectedDoc = documents?.find((doc: any) => doc.id === selectedDocument);
 
   return (
     <div className="space-y-8">
@@ -41,24 +36,38 @@ const QA = () => {
         {/* Document Selection */}
         <div className="lg:col-span-1">
           <h2 className="text-xl font-semibold text-gray-200 mb-4">Select Document</h2>
-          <div className="space-y-4">
-            {documents.map((document) => (
-              <div
-                key={document.id}
-                className={`cursor-pointer transition-all duration-200 ${
-                  selectedDocument === document.id 
-                    ? 'ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-900' 
-                    : ''
-                }`}
-                onClick={() => setSelectedDocument(document.id)}
-              >
-                <DocumentCard
-                  document={document}
-                  onClick={() => {}}
-                />
-              </div>
-            ))}
-          </div>
+          {completedDocuments.length > 0 ? (
+            <div className="space-y-4">
+              {completedDocuments.map((document: any) => (
+                <div
+                  key={document.id}
+                  className={`cursor-pointer transition-all duration-200 ${
+                    selectedDocument === document.id 
+                      ? 'ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-900' 
+                      : ''
+                  }`}
+                  onClick={() => setSelectedDocument(document.id)}
+                >
+                  <DocumentCard
+                    document={{
+                      id: document.id,
+                      title: document.title,
+                      size: `${(document.file_size / 1024 / 1024).toFixed(2)} MB`,
+                      pages: document.page_count || 1,
+                      uploadDate: document.upload_date,
+                      type: document.file_type as 'pdf' | 'txt' | 'docx',
+                    }}
+                    onClick={() => {}}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 bg-gray-800 rounded-xl border border-gray-700">
+              <MessageSquare className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+              <p className="text-gray-400 text-sm">No processed documents available</p>
+            </div>
+          )}
         </div>
 
         {/* Chat Interface */}

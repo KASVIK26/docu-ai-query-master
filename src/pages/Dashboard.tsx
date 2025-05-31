@@ -1,130 +1,167 @@
 
-import React, { useState } from 'react';
-import { FileText, Upload as UploadIcon, Sparkles } from 'lucide-react';
+import React from 'react';
+import { FileText, Upload, MessageSquare, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import DocumentCard from '../components/DocumentCard';
 
 const Dashboard = () => {
-  const [documents] = useState([
-    {
-      id: '1',
-      title: 'Research Paper on AI.pdf',
-      size: '2.4 MB',
-      pages: 15,
-      uploadDate: '2024-01-15',
-      type: 'pdf' as const,
+  const { data: documents, isLoading } = useQuery({
+    queryKey: ['documents'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('get-documents');
+      if (error) throw error;
+      return data.documents || [];
     },
-    {
-      id: '2',
-      title: 'Meeting Notes.txt',
-      size: '45 KB',
-      pages: 3,
-      uploadDate: '2024-01-14',
-      type: 'txt' as const,
-    },
-    {
-      id: '3',
-      title: 'Project Documentation.docx',
-      size: '1.2 MB',
-      pages: 8,
-      uploadDate: '2024-01-13',
-      type: 'docx' as const,
-    },
-  ]);
+  });
 
-  const handleDocumentClick = (documentId: string) => {
-    console.log('Opening document:', documentId);
-  };
+  const stats = [
+    {
+      icon: FileText,
+      label: 'Total Documents',
+      value: documents?.length || 0,
+      gradient: 'from-blue-500 to-blue-600',
+    },
+    {
+      icon: Upload,
+      label: 'Documents Processed',
+      value: documents?.filter((doc: any) => doc.processing_status === 'completed').length || 0,
+      gradient: 'from-purple-500 to-purple-600',
+    },
+    {
+      icon: MessageSquare,
+      label: 'Q&A Sessions',
+      value: '0', // We'll implement this later
+      gradient: 'from-pink-500 to-pink-600',
+    },
+  ];
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-100">Document Library</h1>
-          <p className="text-gray-400 mt-1">Manage and interact with your uploaded documents</p>
-        </div>
-        <div className="flex space-x-3">
-          <Link
-            to="/upload"
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-200"
-          >
-            <UploadIcon className="h-4 w-4" />
-            <span>Upload Document</span>
-          </Link>
-          <Link
-            to="/qa"
-            className="flex items-center space-x-2 px-6 py-3 bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition-all duration-200"
-          >
-            <Sparkles className="h-4 w-4" />
-            <span>Q&A Chat</span>
-          </Link>
-        </div>
+      {/* Welcome Section */}
+      <div className="text-center">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
+          Welcome to DocuMind AI
+        </h1>
+        <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          Transform your documents into intelligent conversations. Upload, analyze, and get instant answers from your content.
+        </p>
       </div>
 
-      {/* Stats */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 bg-blue-500/20 rounded-lg">
-              <FileText className="h-6 w-6 text-blue-400" />
+        {stats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={index}
+              className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm font-medium">{stat.label}</p>
+                  <p className="text-3xl font-bold text-white mt-1">{stat.value}</p>
+                </div>
+                <div className={`p-3 bg-gradient-to-r ${stat.gradient} rounded-lg`}>
+                  <Icon className="h-6 w-6 text-white" />
+                </div>
+              </div>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">Total Documents</p>
-              <p className="text-2xl font-bold text-gray-100">{documents.length}</p>
+          );
+        })}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Link
+          to="/upload"
+          className="group bg-gray-800 rounded-xl p-8 border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="p-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg group-hover:scale-110 transition-transform duration-300">
+              <Plus className="h-8 w-8 text-white" />
             </div>
-          </div>
-        </div>
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 bg-purple-500/20 rounded-lg">
-              <Sparkles className="h-6 w-6 text-purple-400" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">Total Pages</p>
-              <p className="text-2xl font-bold text-gray-100">
-                {documents.reduce((acc, doc) => acc + doc.pages, 0)}
+            <div>
+              <h3 className="text-xl font-semibold text-white group-hover:text-blue-400 transition-colors">
+                Upload New Document
+              </h3>
+              <p className="text-gray-400 mt-1">
+                Add documents to start asking questions
               </p>
             </div>
           </div>
-        </div>
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-          <div className="flex items-center">
-            <div className="p-3 bg-pink-500/20 rounded-lg">
-              <UploadIcon className="h-6 w-6 text-pink-400" />
+        </Link>
+
+        <Link
+          to="/qa"
+          className="group bg-gray-800 rounded-xl p-8 border border-gray-700 hover:border-purple-500 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="p-4 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-lg group-hover:scale-110 transition-transform duration-300">
+              <MessageSquare className="h-8 w-8 text-white" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">Storage Used</p>
-              <p className="text-2xl font-bold text-gray-100">3.6 MB</p>
+            <div>
+              <h3 className="text-xl font-semibold text-white group-hover:text-purple-400 transition-colors">
+                Start Q&A Session
+              </h3>
+              <p className="text-gray-400 mt-1">
+                Ask questions about your documents
+              </p>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
-      {/* Documents Grid */}
+      {/* Recent Documents */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-200 mb-4">Recent Documents</h2>
-        {documents.length === 0 ? (
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold text-white">Recent Documents</h2>
+          <Link
+            to="/upload"
+            className="text-purple-400 hover:text-purple-300 transition-colors text-sm font-medium"
+          >
+            View all
+          </Link>
+        </div>
+
+        {isLoading ? (
           <div className="text-center py-12">
-            <FileText className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400">No documents uploaded yet</p>
-            <Link
-              to="/upload"
-              className="inline-flex items-center space-x-2 mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-200"
-            >
-              <UploadIcon className="h-4 w-4" />
-              <span>Upload your first document</span>
-            </Link>
+            <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading documents...</p>
           </div>
-        ) : (
+        ) : documents && documents.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {documents.map((document) => (
+            {documents.slice(0, 6).map((document: any) => (
               <DocumentCard
                 key={document.id}
-                document={document}
-                onClick={() => handleDocumentClick(document.id)}
+                document={{
+                  id: document.id,
+                  title: document.title,
+                  size: `${(document.file_size / 1024 / 1024).toFixed(2)} MB`,
+                  pages: document.page_count || 1,
+                  uploadDate: document.upload_date,
+                  type: document.file_type as 'pdf' | 'txt' | 'docx',
+                }}
+                onClick={() => {
+                  // Navigate to Q&A with this document
+                  window.location.href = `/qa?doc=${document.id}`;
+                }}
               />
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-gray-800 rounded-xl border border-gray-700">
+            <FileText className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-300 mb-2">No documents yet</h3>
+            <p className="text-gray-400 mb-6">Get started by uploading your first document</p>
+            <Link
+              to="/upload"
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Document
+            </Link>
           </div>
         )}
       </div>
