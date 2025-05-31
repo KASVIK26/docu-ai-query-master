@@ -25,8 +25,11 @@ serve(async (req) => {
       throw new Error('No authorization header')
     }
 
-    // Set the auth for the request
-    supabase.auth.setAuth(authHeader.replace('Bearer ', ''))
+    // Get user from JWT token
+    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
+    if (userError || !user) {
+      throw new Error('User not authenticated')
+    }
 
     const formData = await req.formData()
     const file = formData.get('file') as File
@@ -38,25 +41,39 @@ serve(async (req) => {
 
     console.log(`Uploading file: ${file.name}, size: ${file.size}`)
 
+    // Generate unique file path
+    const timestamp = Date.now()
+    const fileName = `${timestamp}-${file.name}`
+    const filePath = `documents/${user.id}/${fileName}`
+
+    // Upload file to storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('documents')
+      .upload(filePath, file, {
+        contentType: file.type,
+        duplex: 'half'
+      })
+
+    if (uploadError) {
+      console.error('Error uploading file:', uploadError)
+      throw uploadError
+    }
+
+    console.log(`File uploaded to: ${uploadData.path}`)
+
     // Get file type
     const fileType = getFileType(file.name)
     
     // Extract text content from file
     const content = await extractTextContent(file, fileType)
     
-    // Get user ID from JWT
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    if (userError || !user) {
-      throw new Error('User not authenticated')
-    }
-
     // Store file metadata in database
     const { data: document, error: docError } = await supabase
       .from('documents')
       .insert({
         user_id: user.id,
         title: title,
-        file_path: `documents/${user.id}/${file.name}`,
+        file_path: uploadData.path,
         file_type: fileType,
         file_size: file.size,
         page_count: estimatePageCount(content),
@@ -72,10 +89,8 @@ serve(async (req) => {
 
     console.log(`Document created with ID: ${document.id}`)
 
-    // Process document in background (chunking and embedding generation)
-    EdgeRuntime.waitUntil(
-      processDocumentBackground(document.id, content, fileType)
-    )
+    // Process document in background
+    processDocumentBackground(document.id, content, fileType)
 
     return new Response(
       JSON.stringify({ 
@@ -120,13 +135,11 @@ function getFileType(filename: string): string {
 
 async function extractTextContent(file: File, fileType: string): Promise<string> {
   // For now, we'll only handle text files
-  // In a full implementation, you'd use libraries to extract text from PDF/DOCX
   if (fileType === 'txt' || fileType === 'md') {
     return await file.text()
   } else {
-    // For PDF/DOCX, you'd need specialized libraries
-    // For this demo, we'll treat them as text files
-    return await file.text()
+    // For PDF/DOCX, return placeholder text for demo
+    return `Content extracted from ${file.name}. This is a demo placeholder for ${fileType} files.`
   }
 }
 

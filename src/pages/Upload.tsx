@@ -14,7 +14,17 @@ const Upload = () => {
   const { data: documents, isLoading } = useQuery({
     queryKey: ['documents'],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('get-documents');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      const { data, error } = await supabase.functions.invoke('get-documents', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+      
       if (error) throw error;
       return data.documents || [];
     },
@@ -24,12 +34,20 @@ const Upload = () => {
     setUploading(true);
     
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
       for (const file of files) {
         const formData = new FormData();
         formData.append('file', file);
 
         const { data, error } = await supabase.functions.invoke('upload-document', {
           body: formData,
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
         });
 
         if (error) throw error;

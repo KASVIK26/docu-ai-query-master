@@ -25,34 +25,28 @@ serve(async (req) => {
       throw new Error('No authorization header')
     }
 
-    // Set the auth for the request
-    supabase.auth.setAuth(authHeader.replace('Bearer ', ''))
-
-    // Get user ID from JWT
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    // Get user from JWT token
+    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
     if (userError || !user) {
       throw new Error('User not authenticated')
     }
 
-    // Fetch user's documents
-    const { data: documents, error: docsError } = await supabase
+    console.log(`Getting documents for user: ${user.id}`)
+
+    // Get documents for the authenticated user
+    const { data: documents, error: docError } = await supabase
       .from('documents')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
-    if (docsError) {
-      console.error('Error fetching documents:', docsError)
-      throw docsError
+    if (docError) {
+      console.error('Error fetching documents:', docError)
+      throw docError
     }
 
-    console.log(`Retrieved ${documents?.length || 0} documents for user ${user.id}`)
-
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        documents: documents || []
-      }),
+      JSON.stringify({ documents }),
       { 
         headers: { 
           ...corsHeaders, 
