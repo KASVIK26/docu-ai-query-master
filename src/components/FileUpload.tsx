@@ -53,8 +53,8 @@ const FileUpload = ({ onFileSelect }: FileUploadProps) => {
       <div
         className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
           dragActive 
-            ? 'border-purple-400 bg-purple-50' 
-            : 'border-gray-300 hover:border-purple-300 bg-white/50'
+            ? 'border-purple-400 bg-purple-500/10' 
+            : 'border-gray-600 hover:border-purple-500 bg-gray-800'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -69,14 +69,14 @@ const FileUpload = ({ onFileSelect }: FileUploadProps) => {
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
         <div className="space-y-4">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
-            <Upload className="h-8 w-8 text-purple-600" />
+          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <Upload className="h-8 w-8 text-white" />
           </div>
           <div>
-            <p className="text-lg font-medium text-gray-700">
-              Drop your documents here, or <span className="text-purple-600">browse</span>
+            <p className="text-lg font-medium text-gray-200">
+              Drop your documents here, or <span className="text-purple-400">browse</span>
             </p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-400 mt-1">
               Supports TXT, PDF, and DOCX files up to 10MB
             </p>
           </div>
@@ -85,23 +85,23 @@ const FileUpload = ({ onFileSelect }: FileUploadProps) => {
 
       {uploadedFiles.length > 0 && (
         <div className="space-y-3">
-          <h3 className="font-medium text-gray-700">Uploaded Files:</h3>
+          <h3 className="font-medium text-gray-200">Uploaded Files:</h3>
           {uploadedFiles.map((file, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-white/70 rounded-lg border border-white/30">
+            <div key={index} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg border border-gray-700">
               <div className="flex items-center space-x-3">
-                <FileText className="h-5 w-5 text-purple-600" />
+                <FileText className="h-5 w-5 text-purple-400" />
                 <div>
-                  <p className="text-sm font-medium text-gray-700">{file.name}</p>
-                  <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className="text-sm font-medium text-gray-200">{file.name}</p>
+                  <p className="text-xs text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5 text-green-500" />
+                <CheckCircle className="h-5 w-5 text-green-400" />
                 <button
                   onClick={() => removeFile(index)}
-                  className="p-1 hover:bg-red-100 rounded-full transition-colors"
+                  className="p-1 hover:bg-red-500/20 rounded-full transition-colors"
                 >
-                  <X className="h-4 w-4 text-red-500" />
+                  <X className="h-4 w-4 text-red-400" />
                 </button>
               </div>
             </div>

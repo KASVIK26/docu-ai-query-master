@@ -1,80 +1,85 @@
 
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { MessageSquare } from 'lucide-react';
 import ChatInterface from '../components/ChatInterface';
+import DocumentCard from '../components/DocumentCard';
 
 const QA = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const docId = searchParams.get('doc');
-  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
+  const [documents] = useState([
+    {
+      id: '1',
+      title: 'Research Paper on AI.pdf',
+      size: '2.4 MB',
+      pages: 15,
+      uploadDate: '2024-01-15',
+      type: 'pdf' as const,
+    },
+    {
+      id: '2',
+      title: 'Meeting Notes.txt',
+      size: '45 KB',
+      pages: 3,
+      uploadDate: '2024-01-14',
+      type: 'txt' as const,
+    },
+  ]);
 
-  // Mock documents data
-  const documents = [
-    { id: '1', title: 'Research Paper on AI.pdf' },
-    { id: '2', title: 'Meeting Notes.txt' },
-    { id: '3', title: 'Project Proposal.docx' },
-  ];
-
-  useEffect(() => {
-    if (docId) {
-      const doc = documents.find(d => d.id === docId);
-      setSelectedDocument(doc);
-    }
-  }, [docId]);
+  const selectedDoc = documents.find(doc => doc.id === selectedDocument);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center space-x-4">
-        <button
-          onClick={() => navigate('/')}
-          className="p-2 hover:bg-white/60 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5 text-gray-600" />
-        </button>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Document Q&A</h1>
-          <p className="text-gray-600 mt-1">Ask questions and get AI-powered answers from your documents</p>
-        </div>
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-100">Q&A Assistant</h1>
+        <p className="text-gray-400 mt-2">
+          Select a document and ask questions to get intelligent, contextual answers
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Document Selector */}
-        <div className="lg:col-span-1 space-y-4">
-          <h3 className="font-semibold text-gray-900">Your Documents</h3>
-          <div className="space-y-2">
-            {documents.map((doc) => (
-              <button
-                key={doc.id}
-                onClick={() => {
-                  setSelectedDocument(doc);
-                  navigate(`/qa?doc=${doc.id}`);
-                }}
-                className={`w-full text-left p-3 rounded-lg border transition-all duration-200 ${
-                  selectedDocument?.id === doc.id
-                    ? 'bg-gradient-to-r from-purple-100 to-blue-100 border-purple-300'
-                    : 'bg-white/70 border-white/30 hover:border-purple-200'
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Document Selection */}
+        <div className="lg:col-span-1">
+          <h2 className="text-xl font-semibold text-gray-200 mb-4">Select Document</h2>
+          <div className="space-y-4">
+            {documents.map((document) => (
+              <div
+                key={document.id}
+                className={`cursor-pointer transition-all duration-200 ${
+                  selectedDocument === document.id 
+                    ? 'ring-2 ring-purple-500 ring-offset-2 ring-offset-gray-900' 
+                    : ''
                 }`}
+                onClick={() => setSelectedDocument(document.id)}
               >
-                <div className="flex items-center space-x-2">
-                  <FileText className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm font-medium truncate">{doc.title}</span>
-                </div>
-              </button>
+                <DocumentCard
+                  document={document}
+                  onClick={() => {}}
+                />
+              </div>
             ))}
           </div>
         </div>
 
         {/* Chat Interface */}
-        <div className="lg:col-span-3">
-          <ChatInterface 
-            selectedDocumentId={selectedDocument?.id} 
-            documentTitle={selectedDocument?.title}
+        <div className="lg:col-span-2">
+          <h2 className="text-xl font-semibold text-gray-200 mb-4 flex items-center">
+            <MessageSquare className="h-5 w-5 mr-2 text-purple-400" />
+            Chat Interface
+          </h2>
+          <ChatInterface
+            selectedDocumentId={selectedDocument || undefined}
+            documentTitle={selectedDoc?.title}
           />
         </div>
       </div>
+
+      {!selectedDocument && (
+        <div className="text-center py-12">
+          <MessageSquare className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-400">Select a document from the left to start asking questions</p>
+        </div>
+      )}
     </div>
   );
 };
